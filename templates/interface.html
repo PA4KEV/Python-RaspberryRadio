@@ -1,0 +1,28 @@
+<!doctype html>
+<head>
+<title>RPi Radio</title>
+</head>
+<body>
+{% if name %}
+	<h1>Welcome, {{ name }}</h1>
+{% else %}
+	<h1>Welcome to RPi Radio</h1>
+{% endif %}
+
+<hr/>
+{{ status }}
+<hr/>
+<form method='POST' action='/'>
+	<input type="submit" name="submit" value="turn radio on" />
+	<input type="submit" name="submit" value="turn radio off" />
+	<br/>
+	<select name='station'>{{ stations|safe }}</select>
+	<input type="submit" name="submit" value="change" />
+	<br/>
+	<input type="submit" name="submit" value="update playlist" />
+	<br/>
+	<hr/>
+	<input type="submit" name="submit" value="-5" /> {{ volume }}<input type="submit" name="submit" value="+5" />
+	<hr/>
+</form>
+</body>
