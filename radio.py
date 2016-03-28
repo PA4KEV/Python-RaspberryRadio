@@ -2,14 +2,35 @@ from flask import Flask
 from flask import render_template
 from flask import request
 from predefines import host, port, txtFile, templateFile
-from predefines import isInteger
+from predefines import isInteger, mpcCommand
+from flask_apscheduler import APScheduler
 import subprocess
+import datetime
+
+class Config(object):
+    JOBS = [
+        {
+            'id': 'job1',
+            'func': '__main__:job1',
+            'args': (1, 2),
+            'trigger': 'interval',
+            'seconds': 10
+        }
+    ]
+    SCHEDULER_VIEWS_ENABLED = True
+
+	
+def job1(a, b):
+    print(str(a) + ' ' + str(b))
+	
 
 app = Flask(__name__)
+app.config.from_object(Config())
 
-@app.route('/', methods=['GET', 'POST'])
+scheduler = APScheduler()
+scheduler.init_app(app)
 
-
+@app.route('/', methods=['GET', 'POST'])	
 def hello_world(name='Flask FM'):
 	stations = []
 	stationURLs = []
@@ -22,29 +43,19 @@ def hello_world(name='Flask FM'):
 		
 	if request.method == 'POST':
 		if request.form['submit'] == 'turn radio on':
-			cmd=['mpc', 'play']
-			p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-			out,err = p.communicate()
+			mpcCommand(['mpc', 'play'])
 		elif request.form['submit'] == 'turn radio off':
-			cmd=['mpc', 'stop']
-			p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-			out,err = p.communicate()	
+			mpcCommand(['mpc', 'stop'])
 		elif request.form['submit'] == 'change':
-			cmd=['mpc', 'play', str(request.form['station'])]
-			p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-			out,err = p.communicate()
+			mpcCommand(['mpc', 'play', str(request.form['station'])])
 		elif request.form['submit'] == '+5':
-			cmd=['mpc', 'volume', '+5']
-			p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+			mpcCommand(['mpc', 'volume', '+5'])
 		elif request.form['submit'] == '-5':
-			cmd=['mpc', 'volume', '-5']
-			p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+			mpcCommand(['mpc', 'volume', '-5'])
 		elif request.form['submit'] == 'update playlist':
-			cmd=['mpc', 'clear']
-			p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)	
+			mpcCommand(['mpc', 'clear'])
 			for stationURL in stationURLs:
-				cmd=['mpc', 'add', stationURL]
-				p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+				mpcCommand(['mpc', 'add', stationURL])
 		
 	cmd=['mpc', '-f', '%position%']
 	p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
@@ -63,16 +74,16 @@ def hello_world(name='Flask FM'):
 		stationOutput += '>' + station + '</option>'
 		x += 1	
 		
-	cmd=['mpc', 'current']
-	p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-	status = p.stdout.read()
-	cmd=['mpc', 'volume']
-	p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-	volume = p.stdout.read()	
+	status = mpcCommand(['mpc', 'current'])		
+	volume = mpcCommand(['mpc', 'volume'])
+	localtime = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
 	
-	return render_template(templateFile, name=name, stations=stationOutput.strip(), status=status, volume=volume)
+	#scheduler.start()
 	
-if __name__ == '__main__':
+	return render_template(templateFile, name=name, stations=stationOutput.strip(), status=status, volume=volume, localtime=localtime)
+
+	
+if __name__ == '__main__': 
 	app.run(host=host, port=port, debug=True)
 	
 

@@ -1,7 +1,12 @@
-NPO Radio 1 NL | http://icecast.omroep.nl/radio1-sb-mp3
+NPO Radio 1 NL | http://icecast.omroep.nl/nieuws24-bb-mp3
 NPO Radio 2 NL | http://icecast.omroep.nl/radio2-bb-mp3
+3 FM | http://icecast.omroep.nl/3fm-bb-mp3
 Rainwave Chiptune | http://relay-nyc.gameowls.com:80/chiptune.mp3
 Ibiza Global Radio | http://ibizaglobalradio.streaming-pro.com:8024/
 No-Life Radio | http://radio.nolife-radio.com:9000/stream
 Smooth Jazz Florida | http://us1.internet-radio.com:11094/
 AmbientRadio.opg | http://uk2.internet-radio.com:31491/
+Birdsong FM | http://spring.wavestreamer.com:1156/
+Countrymusic24 | http://countrymusic24.powerstream.de:9000/
+Big B Radio #JPOP | http://50.7.173.162:8089/
+Ambient Sleeping Pill | http://50.7.96.138:8235/stream
