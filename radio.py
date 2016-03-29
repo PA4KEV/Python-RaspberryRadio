@@ -58,25 +58,26 @@ def hello_world(name='Flask FM'):
 			for stationURL in stationURLs:
 				mpcCommand(['mpc', 'add', stationURL])
 		elif request.form['submit'] == 'update alarms':
-			cron = CronTab(user='myself')
-			cron.remove_all(comment='radio alarm ON') #make a nice function
-			cron.remove_all(comment='radio alarm OFF')
+			cron = CronTab(user='myself')			
+			cron.remove_all(comment='radio alarm ON') #make a nice function	
+			cron.remove_all(comment='radio alarm OFF')			
+
 			onValue = str(request.form['turnOn'])
 			if len(onValue) == 5 :					
 				inputs = onValue.split(':')
 				job = cron.new(command='mpc play', comment='radio alarm ON')
 				job.hour.on(inputs[0])
-				job.minute.on(inputs[1])				
-				cron.write()		
+				job.minute.on(inputs[1])			
+					
 				print "new ON at " + inputs[0] + ":" + inputs[1]
-			onValue = str(request.form['turnOff'])
-			if len(onValue) == 5 :				
-				inputs = onValue.split(':')
+			offValue = str(request.form['turnOff'])
+			if len(offValue) == 5 :				
+				inputs = offValue.split(':')
 				job = cron.new(command='mpc stop', comment='radio alarm OFF')
 				job.hour.on(inputs[0])
-				job.minute.on(inputs[1])
-				cron.write()				
+				job.minute.on(inputs[1])								
 				print "new OFF at " + inputs[0] + ":" + inputs[1]
+			cron.write()
 			
 		
 	cmd=['mpc', '-f', '%position%']
@@ -110,14 +111,13 @@ def hello_world(name='Flask FM'):
 		splitter = str(job.render()).split(' ')
 		if splitter[6] == "play":
 			alarmON = str(splitter[1]) + ":" + str(splitter[0])
-		elif splitter[6] == "stop":
+		if splitter[6] == "stop":
 			alarmOFF = str(splitter[1]) + ":" + str(splitter[0])
 		
 		alarms += job.render() + '<br/>'
 	
 	print(alarmON)
 	print(alarmOFF)
-	print(alarms)
 	
 	return render_template(templateFile, name=name, stations=stationOutput.strip(), status=status, volume=volume, localtime=localtime, alarmON=alarmON, alarmOFF=alarmOFF, alarms=alarms)
 
