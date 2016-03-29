@@ -26,5 +26,12 @@
 	<hr/>
 	<input type="submit" name="submit" value="-5" /> {{ volume }}<input type="submit" name="submit" value="+5" />
 	<hr/>
+	<strong>Crontab</strong><br/>
+	{{ alarms|safe }}
+	<hr/>
+	Turn Radio on at: <input type="input" name="turnOn" maxlength="5" value="{{ alarmON }}" size="5" /><br/>
+	Turn Radio off at: <input type="input" name="turnOff" maxlength="5" value="{{ alarmOFF }}" size="5" /><br/>
+	<input type="submit" name="submit" value="update alarms"/>
+	<hr/>
 </form>
 </body>

@@ -4,6 +4,7 @@ from flask import request
 from predefines import host, port, txtFile, templateFile
 from predefines import isInteger, mpcCommand
 from flask_apscheduler import APScheduler
+from crontab import CronTab
 import subprocess
 import datetime
 
@@ -56,6 +57,27 @@ def hello_world(name='Flask FM'):
 			mpcCommand(['mpc', 'clear'])
 			for stationURL in stationURLs:
 				mpcCommand(['mpc', 'add', stationURL])
+		elif request.form['submit'] == 'update alarms':
+			cron = CronTab(user='myself')
+			cron.remove_all(comment='radio alarm ON') #make a nice function
+			cron.remove_all(comment='radio alarm OFF')
+			onValue = str(request.form['turnOn'])
+			if len(onValue) == 5 :					
+				inputs = onValue.split(':')
+				job = cron.new(command='mpc play', comment='radio alarm ON')
+				job.hour.on(inputs[0])
+				job.minute.on(inputs[1])				
+				cron.write()		
+				print "new ON at " + inputs[0] + ":" + inputs[1]
+			onValue = str(request.form['turnOff'])
+			if len(onValue) == 5 :				
+				inputs = onValue.split(':')
+				job = cron.new(command='mpc stop', comment='radio alarm OFF')
+				job.hour.on(inputs[0])
+				job.minute.on(inputs[1])
+				cron.write()				
+				print "new OFF at " + inputs[0] + ":" + inputs[1]
+			
 		
 	cmd=['mpc', '-f', '%position%']
 	p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
@@ -77,10 +99,27 @@ def hello_world(name='Flask FM'):
 	status = mpcCommand(['mpc', 'current'])		
 	volume = mpcCommand(['mpc', 'volume'])
 	localtime = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
-	
 	#scheduler.start()
+		
+	alarmON = ""
+	alarmOFF = ""
+	alarms = ""
+		
+	cron = CronTab(user='myself')
+	for job in cron:
+		splitter = str(job.render()).split(' ')
+		if splitter[6] == "play":
+			alarmON = str(splitter[1]) + ":" + str(splitter[0])
+		elif splitter[6] == "stop":
+			alarmOFF = str(splitter[1]) + ":" + str(splitter[0])
+		
+		alarms += job.render() + '<br/>'
 	
-	return render_template(templateFile, name=name, stations=stationOutput.strip(), status=status, volume=volume, localtime=localtime)
+	print(alarmON)
+	print(alarmOFF)
+	print(alarms)
+	
+	return render_template(templateFile, name=name, stations=stationOutput.strip(), status=status, volume=volume, localtime=localtime, alarmON=alarmON, alarmOFF=alarmOFF, alarms=alarms)
 
 	
 if __name__ == '__main__': 
