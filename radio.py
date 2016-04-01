@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -97,7 +100,7 @@ def hello_world(name='Flask FM'):
 		stationOutput += '>' + station + '</option>'
 		x += 1	
 		
-	status = mpcCommand(['mpc', 'current'])		
+	status = unicode(mpcCommand(['mpc', 'current']), "utf-8")
 	volume = mpcCommand(['mpc', 'volume'])
 	localtime = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
 	#scheduler.start()
@@ -110,9 +113,9 @@ def hello_world(name='Flask FM'):
 	for job in cron:
 		splitter = str(job.render()).split(' ')
 		if splitter[6] == "play":
-			alarmON = str(splitter[1]) + ":" + str(splitter[0])
+			alarmON = str(splitter[1]).zfill(2) + ":" + str(splitter[0]).zfill(2)
 		if splitter[6] == "stop":
-			alarmOFF = str(splitter[1]) + ":" + str(splitter[0])
+			alarmOFF = str(splitter[1]).zfill(2) + ":" + str(splitter[0]).zfill(2)
 		
 		alarms += job.render() + '<br/>'
 	

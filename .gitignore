@@ -6,6 +6,7 @@ __pycache__/
 *.doc
 *.docx
 predefines.py
+documentation/
 
 # C extensions
 *.so
