@@ -10,3 +10,5 @@ Birdsong FM | http://spring.wavestreamer.com:1156/
 Countrymusic24 | http://countrymusic24.powerstream.de:9000/
 Big B Radio #JPOP | http://50.7.173.162:8089/
 Ambient Sleeping Pill | http://50.7.96.138:8235/stream
+FM Kahoku Ishikawa | http://radio.kahoku.net:8000/
+FM Odawara | mms://simul.freebit.net/fmodawara

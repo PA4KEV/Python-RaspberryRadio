@@ -1,15 +1,20 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from crontab import CronTab
+import datetime
 from flask import Flask
 from flask import render_template
 from flask import request
+from flask_apscheduler import APScheduler
 from predefines import host, port, txtFile, templateFile
 from predefines import isInteger, mpcCommand
-from flask_apscheduler import APScheduler
-from crontab import CronTab
 import subprocess
-import datetime
+import smbus
+import time
+
+i2c_bus = smbus.SMBus(1)
+i2c_address = 0x04
 
 class Config(object):
     JOBS = [
@@ -49,7 +54,8 @@ def hello_world(name='Flask FM'):
 		if request.form['submit'] == 'turn radio on':
 			mpcCommand(['mpc', 'play'])
 		elif request.form['submit'] == 'turn radio off':
-			mpcCommand(['mpc', 'stop'])
+			i2c_write(3)
+			#mpcCommand(['mpc', 'stop'])
 		elif request.form['submit'] == 'change':
 			mpcCommand(['mpc', 'play', str(request.form['station'])])
 		elif request.form['submit'] == '+5':
@@ -83,9 +89,7 @@ def hello_world(name='Flask FM'):
 			cron.write()
 			
 		
-	cmd=['mpc', '-f', '%position%']
-	p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-	position = p.stdout.read()
+	position = mpcCommand(['mpc', '-f', '%position%'])
 	idx = position.split('[')
 	position = idx[0].strip()
 
@@ -124,6 +128,12 @@ def hello_world(name='Flask FM'):
 	
 	return render_template(templateFile, name=name, stations=stationOutput.strip(), status=status, volume=volume, localtime=localtime, alarmON=alarmON, alarmOFF=alarmOFF, alarms=alarms)
 
+def i2c_write(value):
+	i2c_bus.write_byte(i2c_address, value)	
+	
+def i2c_read():
+	value = i2c_bus.read_byte(i2c_address)
+	return value
 	
 if __name__ == '__main__': 
 	app.run(host=host, port=port, debug=True)
